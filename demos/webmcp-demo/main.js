@@ -1,0 +1,1 @@
+import '../../shared/styles/base.css'; import config from '../../tracks/events/config.js'; import { createApp } from '../../shared/utils/app.js'; import { registerTools } from '../../shared/utils/webmcp.js'; const app=createApp({...config,brand:'Gatherly · Instructor Demo'}); registerTools(config,app);

@@ -1,0 +1,10 @@
+import '../../shared/styles/base.css';
+import config from '../../tracks/events/config.js';
+import { createApp } from '../../shared/utils/app.js';
+const app = createApp({ ...config, brand: 'Gatherly · Final Example' });
+if (document.modelContext) {
+  await document.modelContext.registerTool({ name: 'searchEvents', title: 'Search events', description: 'Search the local event catalog by words and category. Use it to find event IDs before requesting details.', inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'Words to match in titles and descriptions' }, category: { type: 'string', description: 'Exact category, such as Workshop or Talk' } } }, annotations: { readOnlyHint: true, consequentialHint: false, untrustedContentHint: false }, execute: async input => { const items = app.search(input); return { ok: true, items, count: items.length }; } });
+  await document.modelContext.registerTool({ name: 'getEventDetails', title: 'Get event details', description: 'Return complete details for a selected event. Use after search and before registration.', inputSchema: { type: 'object', properties: { id: { type: 'string', description: 'An event ID returned by searchEvents' } }, required: ['id'] }, annotations: { readOnlyHint: true, consequentialHint: false, untrustedContentHint: false }, execute: async input => app.details(input) });
+  // Registration changes state, so a WebMCP client should seek confirmation.
+  await document.modelContext.registerTool({ name: 'registerForEvent', title: 'Register for event', description: 'Register a named attendee for an event. Confirm the attendee and chosen event with the user before calling.', inputSchema: { type: 'object', properties: { id: { type: 'string', description: 'Event ID returned by searchEvents' }, attendeeName: { type: 'string', description: 'Attendee full name' }, email: { type: 'string', description: 'Attendee contact email' } }, required: ['id', 'attendeeName', 'email'] }, annotations: { readOnlyHint: false, consequentialHint: true, untrustedContentHint: false }, execute: async input => app.act(input) });
+}
